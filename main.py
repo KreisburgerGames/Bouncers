@@ -656,7 +656,7 @@ BOUNCER_ADD = 0
 curdiry = 0
 
 def dash_handler(player, keys_pressed):
-    global dash, dready, pdirx, pdiry, dbcolor, dashing, dashingamount, control, curdirx, curdiry, trail, bouncer_trails, bouncers, bouncers_vel, last_bounces, float_texts, SCORE_AMOUNT, DASH_ADD, BOUNCER_ADD, health
+    global dash, dready, pdirx, pdiry, dbcolor, dashing, dashingamount, control, curdirx, curdiry, trail, bouncer_trails, bouncers, bouncers_vel, last_bounces, float_texts, SCORE_AMOUNT, DASH_ADD, BOUNCER_ADD, health, PLAYER_VEL
 
     if dready == False:
         dash += 1
@@ -664,8 +664,8 @@ def dash_handler(player, keys_pressed):
             dready = True
 
     if dashing == True:
-        player.x += curdiry + 3
-        player.y += curdirx + 3
+        player.x += curdirx + (3 * curdirx) + (PLAYER_VEL * curdirx)
+        player.y += curdiry + (3 * curdiry) + (PLAYER_VEL * curdiry)
         dashingamount += 1
         control = False
         index = 0
