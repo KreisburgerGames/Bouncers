@@ -6,12 +6,22 @@ import firebase_admin
 from firebase_admin import firestore
 from firebase_admin import credentials
 import asyncio
+import http.client as httplib
+import pickle
+import ctypes
 
 cred = credentials.Certificate('dodge-lines-eb5dc0de48f3.json')
 app = firebase_admin.initialize_app(cred)
 db = firestore.client()
 
-user = ''
+
+if os.path.getsize('username.dat'):
+    with open('username.dat', 'rb') as f:
+        user = pickle.load(f)
+else:
+    with open('username.dat', 'wb') as f:
+        pickle.dump('', f)
+    user = ''
 
 pygame.init()
 pygame.font.init()
@@ -56,6 +66,12 @@ LOSE_FONT = pygame.font.SysFont('framd', 200)
 SUB_TEXT = pygame.font.SysFont('framd', 40)
 HEALTH_TEXT = pygame.font.SysFont('framd', 80)
 SCORE_TEXT = pygame.font.SysFont('famd', 50)
+
+SCREEN_WIDTH = 1280
+SCREEN_HEIGHT = 720
+shake_screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+screen = shake_screen.copy()
+pygame.display.set_caption("Asteriods")
 
 EXIT_IMG_SIZE = 96
 exit_img = pygame.transform.scale(pygame.image.load(os.path.join('pictures', 'exit.png')),
@@ -164,12 +180,6 @@ star_img = pygame.transform.scale(pygame.image.load(os.path.join('pictures', 'st
 
 star_goal = 650
 
-SCREEN_WIDTH = 1280
-SCREEN_HEIGHT = 720
-shake_screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-screen = shake_screen.copy()
-pygame.display.set_caption("Asteriods")
-
 bounce_multiplier = 3
 
 offset = repeat((0, 0))
@@ -225,6 +235,16 @@ class float_text():
 float_texts = []
 health = 100
 
+def internet_on(url="geeksforgeeks.org", timeout=3):
+
+    connection = httplib.HTTPConnection(url, timeout=timeout)
+
+    try:
+        connection.request("HEAD", "/")
+        connection.close()
+        return True
+    except Exception as exep:
+        return False
 
 def draw_window(player, mini_square):
     global trail, mini_trail, health, bouncer_trails, bouncers, offset, health_packs, particles, health_img, speed_packs, speed_img, health, lives, heart_img, pu_lives, heart_pu_img, dash, dbcolor, pcolor, stars
@@ -521,36 +541,48 @@ async def lose_screen():
     score_text = SCORE_TEXT.render("Score: " + str(bounces_survived), 1, WHITE)
     if bounce_multiplier == 4:
         diff_text = SCORE_TEXT.render("Easy Difficulty", 1, GREEN)
-        if bounces_survived > db.collection(u'highscores').document(u'easy').get().get(u'score'):
-            db.collection(u'highscores').document(u'easy').update({u'score': bounces_survived})
-            db.collection(u'highscores').document(u'easy').update({u'user': user})
-        highscore_text = SCORE_TEXT.render("Highscore: " + str(
-            db.collection(u'highscores').document(u'easy').get().get(u'score')) + " - " + db.collection(
-            u'highscores').document(u'easy').get().get(u'user'), 1, WHITE)
-    if bounce_multiplier == 3:
+        if internet_on():
+            if bounces_survived > db.collection(u'highscores').document(u'r').get().get(u'score'):
+                db.collection(u'highscores').document(u'r').update({u'score': bounces_survived})
+                db.collection(u'highscores').document(u'r').update({u'user': user})
+                highscore_text = SCORE_TEXT.render("Highscore: " + str(
+                    db.collection(u'highscores').document(u'r').get().get(u'score')) + " - " + db.collection(
+                    u'highscores').document(u'r').get().get(u'user'), 1, WHITE)
+        else:
+            highscore_text = SCORE_TEXT.render("No internet, highscore not available", 1, RED)
+    elif bounce_multiplier == 3:
         diff_text = SCORE_TEXT.render("Medium Diffuculty", 1, ORANGE)
-        if bounces_survived > db.collection(u'highscores').document(u'medium').get().get(u'score'):
-            db.collection(u'highscores').document(u'medium').update({u'score': bounces_survived})
-            db.collection(u'highscores').document(u'medium').update({u'user': user})
-        highscore_text = SCORE_TEXT.render("Highscore: " + str(
-            db.collection(u'highscores').document(u'medium').get().get(u'score')) + " - " + db.collection(
-            u'highscores').document(u'medium').get().get(u'user'), 1, WHITE)
-    if bounce_multiplier == 2:
+        if internet_on():
+            if bounces_survived > db.collection(u'highscores').document(u'r').get().get(u'score'):
+                db.collection(u'highscores').document(u'r').update({u'score': bounces_survived})
+                db.collection(u'highscores').document(u'r').update({u'user': user})
+                highscore_text = SCORE_TEXT.render("Highscore: " + str(
+                    db.collection(u'highscores').document(u'r').get().get(u'score')) + " - " + db.collection(
+                    u'highscores').document(u'r').get().get(u'user'), 1, WHITE)
+        else:
+            highscore_text = SCORE_TEXT.render("No internet, highscore not available", 1, RED)
+    elif bounce_multiplier == 2:
         diff_text = SCORE_TEXT.render("Hard Difficulty", 1, RED)
-        if bounces_survived > db.collection(u'highscores').document(u'hard').get().get(u'score'):
-            db.collection(u'highscores').document(u'hard').update({u'score': bounces_survived})
-            db.collection(u'highscores').document(u'hard').update({u'user': user})
-        highscore_text = SCORE_TEXT.render("Highscore: " + str(
-            db.collection(u'highscores').document(u'hard').get().get(u'score')) + " - " + db.collection(
-            u'highscores').document(u'hard').get().get(u'user'), 1, WHITE)
-    if bounce_multiplier == 8:
+        if internet_on():
+            if bounces_survived > db.collection(u'highscores').document(u'r').get().get(u'score'):
+                db.collection(u'highscores').document(u'r').update({u'score': bounces_survived})
+                db.collection(u'highscores').document(u'r').update({u'user': user})
+                highscore_text = SCORE_TEXT.render("Highscore: " + str(
+                    db.collection(u'highscores').document(u'r').get().get(u'score')) + " - " + db.collection(
+                    u'highscores').document(u'r').get().get(u'user'), 1, WHITE)
+        else:
+            highscore_text = SCORE_TEXT.render("No internet, highscore not available", 1, RED)
+    elif bounce_multiplier == 8:
         diff_text = SCORE_TEXT.render("How did you die???? (unless if u restarted)", 1, BLUE)
-        if bounces_survived > db.collection(u'highscores').document(u'r').get().get(u'score'):
-            db.collection(u'highscores').document(u'r').update({u'score': bounces_survived})
-            db.collection(u'highscores').document(u'r').update({u'user': user})
-        highscore_text = SCORE_TEXT.render("Highscore: " + str(
-            db.collection(u'highscores').document(u'r').get().get(u'score')) + " - " + db.collection(
-            u'highscores').document(u'r').get().get(u'user'), 1, WHITE)
+        if internet_on():
+            if bounces_survived > db.collection(u'highscores').document(u'r').get().get(u'score'):
+                db.collection(u'highscores').document(u'r').update({u'score': bounces_survived})
+                db.collection(u'highscores').document(u'r').update({u'user': user})
+                highscore_text = SCORE_TEXT.render("Highscore: " + str(
+                    db.collection(u'highscores').document(u'r').get().get(u'score')) + " - " + db.collection(
+                    u'highscores').document(u'r').get().get(u'user'), 1, WHITE)
+        else:
+            highscore_text = SCORE_TEXT.render("No internet, highscore not available", 1, RED)
 
     dead = True
 
@@ -564,6 +596,8 @@ async def lose_screen():
         for event in pygame.event.get():
 
             if event.type == pygame.QUIT:
+                with open('username.dat', 'wb') as f:
+                    pickle.dump(user, f)
                 pygame.quit()
                 quit()
 
@@ -573,6 +607,8 @@ async def lose_screen():
 
             if exit_rect.collidepoint(pygame.mouse.get_pos()) and event.type == pygame.MOUSEBUTTONDOWN:
                 pygame.quit()
+                with open('username.dat', 'wb') as f:
+                    pickle.dump(user, f)
                 quit()
             if fullscreen_rect.collidepoint(pygame.mouse.get_pos()) and event.type == pygame.MOUSEBUTTONDOWN:
                 pygame.display.toggle_fullscreen()
@@ -1218,6 +1254,8 @@ async def main():
 
                 if event.type == pygame.QUIT:
                     pygame.quit()
+                    with open('username.dat', 'wb') as f:
+                        pickle.dump(user, f)
                     quit()
 
                 if event.type == pygame.KEYDOWN:
@@ -1327,6 +1365,8 @@ async def main():
 
                 if exit_rect.collidepoint(pygame.mouse.get_pos()) and event.type == pygame.MOUSEBUTTONDOWN:
                     pygame.quit()
+                    with open('username.dat', 'wb') as f:
+                        pickle.dump(user, f)
                     quit()
                 if fullscreen_rect.collidepoint(pygame.mouse.get_pos()) and event.type == pygame.MOUSEBUTTONDOWN:
                     pygame.display.toggle_fullscreen()
@@ -1372,6 +1412,9 @@ async def main():
     bouncer_trails = []
     bouncers_vel = []
 
+    with open('username.dat', 'wb') as f:
+        pickle.dump(user, f)
+
     hit_on_bounce = 0
 
     clock = pygame.time.Clock()
@@ -1414,6 +1457,8 @@ async def main():
 
             if event.type == pygame.QUIT:
                 pygame.quit()
+                with open('username.dat', 'wb') as f:
+                    pickle.dump(user, f)
                 quit()
 
             if event.type == pygame.KEYDOWN:
@@ -1431,10 +1476,14 @@ async def main():
 
                     if event.type == pygame.QUIT:
                         pygame.quit()
+                        with open('username.dat', 'wb') as f:
+                            pickle.dump(user, f)
                         quit()
 
                     if exit_rect.collidepoint(pygame.mouse.get_pos()) and event.type == pygame.MOUSEBUTTONDOWN:
                         pygame.quit()
+                        with open('username.dat', 'wb') as f:
+                            pickle.dump(user, f)
                         quit()
 
                     if fullscreen_rect.collidepoint(pygame.mouse.get_pos()) and event.type == pygame.MOUSEBUTTONDOWN:
@@ -1572,7 +1621,6 @@ async def main():
             HEALTH_WIDTH_MULTIPLIER = 3
             HEALTH_BAR_WIDTH = MAX_HEALTH * HEALTH_WIDTH_MULTIPLIER
             health = MAX_HEALTH
-            print("healmainfree")
         if bounces_survived >= pu_goal:
             choice = random.randint(1, 2)
             pu_goal += round(bounces_survived + (bounces_survived / 4)) + random.randint(50, 100)
