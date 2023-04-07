@@ -554,7 +554,7 @@ async def lose_screen():
             if bounces_survived > db.collection(u'highscores').document(u'r').get().get(u'score'):
                 db.collection(u'highscores').document(u'r').update({u'score': bounces_survived})
                 db.collection(u'highscores').document(u'r').update({u'user': user})
-                highscore_text = SCORE_TEXT.render("Highscore: " + str(
+            highscore_text = SCORE_TEXT.render("Highscore: " + str(
                     db.collection(u'highscores').document(u'r').get().get(u'score')) + " - " + db.collection(
                     u'highscores').document(u'r').get().get(u'user'), 1, WHITE)
         else:
@@ -565,7 +565,7 @@ async def lose_screen():
             if bounces_survived > db.collection(u'highscores').document(u'r').get().get(u'score'):
                 db.collection(u'highscores').document(u'r').update({u'score': bounces_survived})
                 db.collection(u'highscores').document(u'r').update({u'user': user})
-                highscore_text = SCORE_TEXT.render("Highscore: " + str(
+            highscore_text = SCORE_TEXT.render("Highscore: " + str(
                     db.collection(u'highscores').document(u'r').get().get(u'score')) + " - " + db.collection(
                     u'highscores').document(u'r').get().get(u'user'), 1, WHITE)
         else:
@@ -576,7 +576,7 @@ async def lose_screen():
             if bounces_survived > db.collection(u'highscores').document(u'r').get().get(u'score'):
                 db.collection(u'highscores').document(u'r').update({u'score': bounces_survived})
                 db.collection(u'highscores').document(u'r').update({u'user': user})
-                highscore_text = SCORE_TEXT.render("Highscore: " + str(
+            highscore_text = SCORE_TEXT.render("Highscore: " + str(
                     db.collection(u'highscores').document(u'r').get().get(u'score')) + " - " + db.collection(
                     u'highscores').document(u'r').get().get(u'user'), 1, WHITE)
         else:
@@ -587,7 +587,7 @@ async def lose_screen():
             if bounces_survived > db.collection(u'highscores').document(u'r').get().get(u'score'):
                 db.collection(u'highscores').document(u'r').update({u'score': bounces_survived})
                 db.collection(u'highscores').document(u'r').update({u'user': user})
-                highscore_text = SCORE_TEXT.render("Highscore: " + str(
+            highscore_text = SCORE_TEXT.render("Highscore: " + str(
                     db.collection(u'highscores').document(u'r').get().get(u'score')) + " - " + db.collection(
                     u'highscores').document(u'r').get().get(u'user'), 1, WHITE)
         else:
