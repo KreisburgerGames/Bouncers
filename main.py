@@ -14,11 +14,20 @@ cred = credentials.Certificate('dodge-lines-eb5dc0de48f3.json')
 app = firebase_admin.initialize_app(cred)
 db = firestore.client()
 
-
-if os.path.getsize('username.dat'):
-    with open('username.dat', 'rb') as f:
-        user = pickle.load(f)
-else:
+try:
+    if os.path.exists('username.dat'):
+        if os.path.getsize('username.dat') > 0:
+            with open('username.dat', 'rb') as f:
+                user = pickle.load(f)
+        else:
+            with open('username.dat', 'wb') as f:
+                pickle.dump('', f)
+            user = ''
+    else:
+        with open('username.dat', 'wb') as f:
+            pickle.dump('', f)
+        user = ''
+except FileExistsError or FileNotFoundError:
     with open('username.dat', 'wb') as f:
         pickle.dump('', f)
     user = ''
