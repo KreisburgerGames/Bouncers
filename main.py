@@ -59,16 +59,15 @@ bounces_survived = 0
 
 FPS = 60
 
-HIT_SOUND = pygame.mixer.Sound(os.path.join('sfx', 'hit.wav'))
-WALL_SOUND = pygame.mixer.Sound(os.path.join('sfx', 'wall.wav'))
-DEATH_SOUND = pygame.mixer.Sound(os.path.join('sfx', 'death.wav'))
-HEALTH_SOUND = pygame.mixer.Sound(os.path.join('sfx', 'health.wav'))
+HIT_SOUND = pygame.mixer.Sound(os.path.join('', 'sfx/hit.wav'))
+WALL_SOUND = pygame.mixer.Sound(os.path.join('', 'sfx/wall.wav'))
+DEATH_SOUND = pygame.mixer.Sound(os.path.join('', 'sfx/death.wav'))
+HEALTH_SOUND = pygame.mixer.Sound(os.path.join('', 'sfx/health.wav'))
 HEALTH_SOUND.set_volume(0.5)
-BOUNCER_SOUND = pygame.mixer.Sound(os.path.join('sfx', 'bouncer.wav'))
+BOUNCER_SOUND = pygame.mixer.Sound(os.path.join('', 'sfx/bouncer.wav'))
 RETRO_TEXT = pygame.font.Font('Retro Gaming.ttf', 50)
-DASH_SOUND = pygame.mixer.Sound(os.path.join('sfx', 'dash.wav'))
-BDEATH_SOUND = pygame.mixer.Sound(os.path.join('sfx', 'bouncerdeath.wav'))
-BOUNCE_SOUND = pygame.mixer.Sound(os.path.join('sfx', 'bounce.wav'))
+DASH_SOUND = pygame.mixer.Sound(os.path.join('', 'sfx/dash.wav'))
+BDEATH_SOUND = pygame.mixer.Sound(os.path.join('', 'sfx/bouncerdeath.wav'))
 
 LOSE_FONT = pygame.font.SysFont('framd', 200)
 SUB_TEXT = pygame.font.SysFont('framd', 40)
@@ -166,9 +165,9 @@ dash_pause = False
 wait = 0
 
 def rect_surf(color, width, height):
-    surf = pygame.Surface((width, height))
+    surf = pygame.Surface((width, height), pygame.SRCALPHA)
     pygame.draw.circle(surf, color, (width/2, height/2), width/2)
-    surf.set_colorkey(color)
+    surf.set_colorkey((0, 0, 0))
     return surf
 
 HEALTH_PACK_SIZE = 25
@@ -186,7 +185,7 @@ heart_img = pygame.transform.scale(pygame.image.load(os.path.join('pictures', 'h
 PU_SPEED_SIZE = 50
 speed_img = pygame.transform.scale(pygame.image.load(os.path.join('pictures', 'speed.png')),
                                    (PU_SPEED_SIZE, PU_SPEED_SIZE))
-PU_SPEED_SOUND = pygame.mixer.Sound(os.path.join('sfx', 'speed.wav'))
+PU_SPEED_SOUND = pygame.mixer.Sound(os.path.join('', 'sfx/speed.wav'))
 
 PU_STAR_SIZE = 50
 star_img = pygame.transform.scale(pygame.image.load(os.path.join('pictures', 'star.png')),
@@ -203,7 +202,7 @@ diff_change = True
 
 class particle():
 
-    def __init__(self, x, y, x_velocity, y_velocity, width, height, color, gravity_scale, glow, glow_radius):
+    def __init__(self, x, y, x_velocity, y_velocity, width, height, color, gravity_scale, glow, glow_radius, white=False, lighten=0):
         self.x = x
         self.y = y
         self.x_velocity = x_velocity
@@ -217,6 +216,8 @@ class particle():
         self.glow = glow
         self.glow_radius = glow_radius
         self.r, self.g, self.b = self.color
+        self.white = white
+        self.lighten = lighten
 
     def draw(self, display):
         self.lifetime -= 1
@@ -224,35 +225,22 @@ class particle():
         self.x += self.x_velocity
         self.y += self.y_velocity * self.gravity
         if self.glow:
-            change = random.randint(100, 200)
-            colors = [self.r, self.g, self.b]
-            colors.sort()
-            if self.r == colors[0]:
-                self.r = change
-            elif self.g == colors[0]:
-                self.g = change
-            elif self.b == colors[0]:
-                self.b = change
-            if self.r == colors[2] and not self.r == colors[0]:
-                self.r += change
-            elif self.g == colors[2] and not self.g == colors[0]:
-                self.g = change
-            elif self.b == colors[2] and not self.b == colors[0]:
-                self.b += change
-            if self.r > 255:
-                self.r = 255
-            if self.g > 255:
-                self.g = 255
-            if self.b > 255:
-                self.b = 255
-            if self.r < 0:
-                self.r = 0
-            if self.g < 0:
-                self.g = 0
-            if self.b < 0:
-                self.b = 0
-            rect = rect_surf((self.r, self.g, self.b, 0), self.width + self.glow_radius, self.height + self.glow_radius)
-            display.blit(rect, (self.x-self.glow_radius/2, self.y-self.glow_radius/2), special_flags=pygame.BLEND_RGBA_ADD)
+            if self.white:
+                self.white = False
+                self.lighten = 3
+            if True:
+                self.r += self.lighten
+                self.g += self.lighten
+                self.b += self.lighten
+                LIGHT_LIMIT = 255
+                if self.r > LIGHT_LIMIT:
+                    self.r = LIGHT_LIMIT
+                if self.g > LIGHT_LIMIT:
+                    self.g = LIGHT_LIMIT
+                if self.b > LIGHT_LIMIT:
+                    self.b = LIGHT_LIMIT
+            rect = rect_surf((self.r, self.g, self.b, 100), self.width + self.glow_radius, self.height + self.glow_radius)
+            display.blit(rect, (self.x-self.glow_radius/2, self.y-self.glow_radius/2))
         pygame.draw.rect(display, self.color, (self.x, self.y, self.width, self.height))
 
 
@@ -435,7 +423,7 @@ def player_movement(player, keys_pressed):
                 for i in range(15):
                     particles.append(
                         particle(player.x, player.y, random.randrange(-5, 5), random.randrange(-2, 0), 10, 10, DARK_RED,
-                                 1, True, 20))
+                                 1, False, 0))
                 if health > 0:
                     offset = screen_shake(5, 20)
     elif not keys_pressed[pygame.K_s] and not keys_pressed[pygame.K_DOWN] and control == True:
@@ -459,7 +447,7 @@ def player_movement(player, keys_pressed):
                 for i in range(15):
                     particles.append(
                         particle(player.x, player.y, random.randrange(-5, 5), random.randrange(-2, 0), 10, 10, DARK_RED,
-                                 1, True, 20))
+                                 1, False, 0))
                 if health > 0:
                     offset = screen_shake(5, 20)
     elif not keys_pressed[pygame.K_w] and not keys_pressed[pygame.K_UP] and control == True:
@@ -483,7 +471,7 @@ def player_movement(player, keys_pressed):
                 for i in range(15):
                     particles.append(
                         particle(player.x, player.y, random.randrange(-5, 5), random.randrange(-2, 0), 10, 10, DARK_RED,
-                                 1, True, 20))
+                                 1, False, 0))
                 if health > 0:
                     offset = screen_shake(5, 20)
     elif not keys_pressed[pygame.K_d] and not keys_pressed[pygame.K_RIGHT] and control == True:
@@ -507,7 +495,7 @@ def player_movement(player, keys_pressed):
                 for i in range(15):
                     particles.append(
                         particle(player.x, player.y, random.randrange(-5, 5), random.randrange(-2, 0), 10, 10, DARK_RED,
-                                 1, True, 20))
+                                 1, False, 0))
                 if health > 0:
                     offset = screen_shake(5, 20)
     elif not keys_pressed[pygame.K_a] and not keys_pressed[pygame.K_LEFT] and control == True:
@@ -523,28 +511,28 @@ def mini_square_movement(player, mini_square):
             for i in range(3):
                 particles.append(
                     particle(mini_square.x, mini_square.y, random.randrange(-5, 5), random.randrange(-2, 0), 5, 5,
-                             ORANGE, 3, True, 10))
+                             ORANGE, 3, False, 0))
     else:
         mini_square.x += MINI_SQUARE_SPEED
         if random.randint(1, 100) == 50:
             for i in range(3):
                 particles.append(
                     particle(mini_square.x, mini_square.y, random.randrange(-5, 5), random.randrange(-2, 0), 5, 5,
-                             ORANGE, 3, True, 10))
+                             ORANGE, 3, False, 0))
     if player.y + PLAYER_HEIGHT / 4 - mini_square.y < 0 and not player.y + PLAYER_HEIGHT / 4 - mini_square.y == 0:
         mini_square.y -= MINI_SQUARE_SPEED
         if random.randint(1, 100) == 50:
             for i in range(3):
                 particles.append(
                     particle(mini_square.x, mini_square.y, random.randrange(-5, 5), random.randrange(-2, 0), 5, 5,
-                             ORANGE, 3, True, 10))
+                             ORANGE, 3, False, 0))
     else:
         mini_square.y += MINI_SQUARE_SPEED
         if random.randint(1, 100) == 50:
             for i in range(3):
                 particles.append(
                     particle(mini_square.x, mini_square.y, random.randrange(-5, 5), random.randrange(-2, 0), 5, 5,
-                             ORANGE, 3, True, 10))
+                             ORANGE, 3, False, 0))
 
     if mini_square.colliderect(player) and dashing == False:
         remove_amount = random.randint(MINI_SQUARE_MIN_DMG, MINI_SQUARE_MAX_DMG)
@@ -566,16 +554,16 @@ def mini_square_movement(player, mini_square):
         for i in range(15):
             particles.append(
                 particle(mini_square.x, mini_square.y, random.randrange(-5, 5), random.randrange(-2, 0), 6, 6, ORANGE,
-                         1, True, 10))
+                         1, False, 0))
         mini_square.x = random.randint(0, SCREEN_WIDTH)
         mini_square.y = random.randint(0, SCREEN_HEIGHT)
         for i in range(30):
             particles.append(
-                particle(player.x, player.y, random.randrange(-5, 5), random.randrange(-2, 0), 16, 16, DARK_RED, 1, True, 10))
+                particle(player.x, player.y, random.randrange(-5, 5), random.randrange(-2, 0), 16, 16, DARK_RED, 1, False, 0))
         for i in range(40):
             particles.append(
                 particle(mini_square.x, mini_square.y, random.randrange(-5, 5), random.randrange(-2, 0), 8, 8, ORANGE,
-                         0, True, 10))
+                         0, True, 15, False, 3))
 
 
 async def lose_screen():
@@ -589,34 +577,34 @@ async def lose_screen():
     if bounce_multiplier == 4:
         diff_text = SCORE_TEXT.render("Easy Difficulty", 1, GREEN)
         if internet_on():
-            if bounces_survived > db.collection(u'highscores').document(u'r').get().get(u'score'):
-                db.collection(u'highscores').document(u'r').update({u'score': bounces_survived})
-                db.collection(u'highscores').document(u'r').update({u'user': user})
+            if bounces_survived > db.collection(u'highscores').document(u'easy').get().get(u'score'):
+                db.collection(u'highscores').document(u'easy').update({u'score': bounces_survived})
+                db.collection(u'highscores').document(u'easy').update({u'user': user})
             highscore_text = SCORE_TEXT.render("Highscore: " + str(
-                    db.collection(u'highscores').document(u'r').get().get(u'score')) + " - " + db.collection(
-                    u'highscores').document(u'r').get().get(u'user'), 1, WHITE)
+                    db.collection(u'highscores').document(u'easy').get().get(u'score')) + " - " + db.collection(
+                    u'highscores').document(u'easy').get().get(u'user'), 1, WHITE)
         else:
             highscore_text = SCORE_TEXT.render("No internet, highscore not available", 1, RED)
     elif bounce_multiplier == 3:
         diff_text = SCORE_TEXT.render("Medium Diffuculty", 1, ORANGE)
         if internet_on():
-            if bounces_survived > db.collection(u'highscores').document(u'r').get().get(u'score'):
-                db.collection(u'highscores').document(u'r').update({u'score': bounces_survived})
-                db.collection(u'highscores').document(u'r').update({u'user': user})
+            if bounces_survived > db.collection(u'highscores').document(u'medium').get().get(u'score'):
+                db.collection(u'highscores').document(u'medium').update({u'score': bounces_survived})
+                db.collection(u'highscores').document(u'medium').update({u'user': user})
             highscore_text = SCORE_TEXT.render("Highscore: " + str(
-                    db.collection(u'highscores').document(u'r').get().get(u'score')) + " - " + db.collection(
-                    u'highscores').document(u'r').get().get(u'user'), 1, WHITE)
+                    db.collection(u'highscores').document(u'medium').get().get(u'score')) + " - " + db.collection(
+                    u'highscores').document(u'medium').get().get(u'user'), 1, WHITE)
         else:
             highscore_text = SCORE_TEXT.render("No internet, highscore not available", 1, RED)
     elif bounce_multiplier == 2:
         diff_text = SCORE_TEXT.render("Hard Difficulty", 1, RED)
         if internet_on():
-            if bounces_survived > db.collection(u'highscores').document(u'r').get().get(u'score'):
-                db.collection(u'highscores').document(u'r').update({u'score': bounces_survived})
-                db.collection(u'highscores').document(u'r').update({u'user': user})
+            if bounces_survived > db.collection(u'highscores').document(u'hard').get().get(u'score'):
+                db.collection(u'highscores').document(u'hard').update({u'score': bounces_survived})
+                db.collection(u'highscores').document(u'hard').update({u'user': user})
             highscore_text = SCORE_TEXT.render("Highscore: " + str(
-                    db.collection(u'highscores').document(u'r').get().get(u'score')) + " - " + db.collection(
-                    u'highscores').document(u'r').get().get(u'user'), 1, WHITE)
+                    db.collection(u'highscores').document(u'hard').get().get(u'score')) + " - " + db.collection(
+                    u'highscores').document(u'hard').get().get(u'user'), 1, WHITE)
         else:
             highscore_text = SCORE_TEXT.render("No internet, highscore not available", 1, RED)
     elif bounce_multiplier == 8:
@@ -695,7 +683,7 @@ def passive_healing_handler(player, heal_amount, cooldown, active):
         health += heal_amount
         for i in range(10):
             particles.append(
-                particle(player.x, player.y, random.randrange(-5, 5), random.randrange(-1, 0), 10, 10, GREEN, 1, True, 10))
+                particle(player.x, player.y, random.randrange(-5, 5), random.randrange(-1, 0), 10, 10, GREEN, 1, True, 15, False, 3))
         float_texts.append(
             float_text(player.x, player.y, 10, random.randint(-4, 4), GREEN, RETRO_TEXT, ("+" + str(heal_amount))))
         heal_cooldown = 0
@@ -725,10 +713,10 @@ def bouncer_movement(player):
                 bouncers_vel[index][1] += random.choice([-1, 1])
                 bouncers_vel[index][1] += (1 + random.randint(-5, 4))
             last_bounces[index] = "right"
-            BOUNCE_SOUND.play()
+
             for i in range(3):
                 particles.append(
-                    particle(bouncer.x, bouncer.y, random.randrange(-5, 5), random.randrange(-2, 0), 5, 5, CYAN, 1, True, 10))
+                    particle(bouncer.x, bouncer.y, random.randrange(-5, 5), random.randrange(-2, 0), 5, 5, CYAN, 1, False, 0))
             bounces_survived += SCORE_AMOUNT
         elif bouncer.x + (bouncers_vel[index][0] * 2) - 5 <= 0 and not last_bounces[index] == 'left':
             bouncers_vel[index][0] *= -1
@@ -745,10 +733,10 @@ def bouncer_movement(player):
                 bouncers_vel[index][1] += random.choice([-1, 1])
                 bouncers_vel[index][1] += (1 + random.randint(-5, 4))
             last_bounces[index] = "left"
-            BOUNCE_SOUND.play()
+
             for i in range(3):
                 particles.append(
-                    particle(bouncer.x, bouncer.y, random.randrange(-5, 5), random.randrange(-2, 0), 5, 5, CYAN, 1, True, 10))
+                    particle(bouncer.x, bouncer.y, random.randrange(-5, 5), random.randrange(-2, 0), 5, 5, CYAN, 1, False, 0))
             bounces_survived += SCORE_AMOUNT
         if bouncer.y + bouncer.height + (bouncers_vel[index][1] * 2) + 5 >= SCREEN_HEIGHT and not last_bounces[
                                                                                                       index] == 'down' and corner == False:
@@ -757,10 +745,10 @@ def bouncer_movement(player):
             bouncers_vel[index][0] += random.choice([-1, 1])
             bouncers_vel[index][0] *= (1 + random.randint(-5, 4))
             last_bounces[index] = "down"
-            BOUNCE_SOUND.play()
+
             for i in range(3):
                 particles.append(
-                    particle(bouncer.x, bouncer.y, random.randrange(-5, 5), random.randrange(-2, 0), 5, 5, CYAN, 1, True, 10))
+                    particle(bouncer.x, bouncer.y, random.randrange(-5, 5), random.randrange(-2, 0), 5, 5, CYAN, 1, False, 0))
             bounces_survived += SCORE_AMOUNT
         elif bouncer.y <= 0 - (bouncers_vel[index][1] * 2) - 5 and not last_bounces[index] == 'up' and corner == False:
             bouncers_vel[index][1] *= -1
@@ -768,10 +756,10 @@ def bouncer_movement(player):
             bouncers_vel[index][0] += random.choice([-1, 1])
             bouncers_vel[index][0] *= (1 + random.randint(-5, 4))
             last_bounces[index] = "up"
-            BOUNCE_SOUND.play()
+
             for i in range(3):
                 particles.append(
-                    particle(bouncer.x, bouncer.y, random.randrange(-5, 5), random.randrange(-2, 0), 5, 5, CYAN, 1, True, 10))
+                    particle(bouncer.x, bouncer.y, random.randrange(-5, 5), random.randrange(-2, 0), 5, 5, CYAN, 1, False, 0))
             bounces_survived += SCORE_AMOUNT
         if bouncers_vel[index][0] > 10:
             bouncers_vel[index][0] = 10
@@ -798,7 +786,7 @@ def bouncer_movement(player):
                 for i in range(30):
                     particles.append(
                         particle(player.x, player.y, random.randrange(-5, 5), random.randrange(-2, 0), 10, 10, DARK_RED,
-                                 1, True, 20))
+                                 1, False, 0))
                 offset = screen_shake(40, 120)
                 hit_on_bounce = bounces_survived
         index += 1
@@ -826,7 +814,7 @@ def health_handler(player):
             HEALTH_SOUND.play()
             for i in range(30):
                 particles.append(
-                    particle(player.x, player.y, random.randrange(-5, 5), random.randrange(-1, 0), 10, 10, GREEN, 0, True, 10))
+                    particle(player.x, player.y, random.randrange(-5, 5), random.randrange(-1, 0), 10, 10, GREEN, 0, True, 15, False, 3))
             if health > MAX_HEALTH:
                 health = 100
 
@@ -847,7 +835,7 @@ def pu_speed_handler(player):
             PU_SPEED_SOUND.play()
             for i in range(50):
                 particles.append(
-                    particle(player.x, player.y, random.randrange(-5, 5), random.randrange(-1, 0), 10, 10, BLUE, 0, True, 10))
+                    particle(player.x, player.y, random.randrange(-5, 5), random.randrange(-1, 0), 10, 10, BLUE, 0, True, 10, True))
         index += 1
 
 
@@ -863,7 +851,7 @@ def pu_live_handler(player):
             PU_SPEED_SOUND.play()
             for i in range(50):
                 particles.append(
-                    particle(player.x, player.y, random.randrange(-5, 5), random.randrange(-1, 0), 10, 10, PINK, 0, True, 10))
+                    particle(player.x, player.y, random.randrange(-5, 5), random.randrange(-1, 0), 10, 10, PINK, 0, True, 10, True))
         index += 1
 
 
@@ -893,7 +881,7 @@ def dash_handler(player, keys_pressed):
     if dash_pause:
         dash_ccd += 1
         particles.append(
-            particle(player.x, player.y, random.randrange(-5, 5), random.randrange(-1, 0), 10, 10, DARK_RED, 1, True, 10))
+            particle(player.x, player.y, random.randrange(-5, 5), random.randrange(-1, 0), 10, 10, DARK_RED, 1, False, 0))
         if dash_ccd >= bleed:
             remove_amount = random.randint(2, 4)
             health -= remove_amount
@@ -926,7 +914,7 @@ def dash_handler(player, keys_pressed):
                     for i in bouncer_trails[index]:
                         for e in range(1):
                             particles.append(
-                                particle(i[0], i[1], random.randrange(-5, 5), random.randrange(-1, 0), 10, 10, CYAN, 0, True, 10))
+                                particle(i[0], i[1], random.randrange(-5, 5), random.randrange(-1, 0), 10, 10, CYAN, 0, True, 10, True))
                         deadb = True
                     size_remove += SIZE_REMOVE_AMOUNT
 
@@ -952,7 +940,7 @@ def dash_handler(player, keys_pressed):
                         for i in range(30):
                             particles.append(
                                 particle(player.x, player.y, random.randrange(-5, 5), random.randrange(-1, 0), 10, 10,
-                                         GREEN, 0, True, 10))
+                                         GREEN, 0, True, 10, False, 3))
                         DASH_ADD -= random.randint(3, 9)
                         if DASH_ADD < 0:
                             DASH_ADD = 1
@@ -973,7 +961,7 @@ def dash_handler(player, keys_pressed):
                                 particles.append(
                                     particle(randx, randy, random.randrange(-5, 5), random.randrange(-2, 0), 10, 10,
                                              CYAN,
-                                             0, True, 10))
+                                             0, True, 10, False, 3))
                         index = 0
                         if len(bouncers) > MAX_BOUNCERS:
                             purge_amount = len(bouncers) - MAX_BOUNCERS
@@ -1030,7 +1018,7 @@ def dash_handler(player, keys_pressed):
                 for i in bouncer_trails[index]:
                     for e in range(5):
                         particles.append(
-                            particle(i[0], i[1], 0, -2, 10, 10, CYAN, 0, True, 10))
+                            particle(i[0], i[1], 0, -2, 10, 10, CYAN, 0, True, 10, False, 3))
                     deadb = True
                 if deadb == True:
                     bouncers.pop(index)
@@ -1058,7 +1046,7 @@ def dash_handler(player, keys_pressed):
                     for i in range(30):
                         particles.append(
                             particle(player.x, player.y, random.randrange(-5, 5), random.randrange(-1, 0), 10, 10,
-                                     GREEN, 0, True, 10))
+                                     GREEN, 0, True, 10, False, 3))
                     for i in range(BOUNCER_ADD):
                         randx = random.randint(0, SCREEN_WIDTH)
                         randy = random.randint(0, SCREEN_HEIGHT)
@@ -1071,7 +1059,7 @@ def dash_handler(player, keys_pressed):
                         for i in range(30):
                             particles.append(
                                 particle(randx, randy, random.randrange(-5, 5), random.randrange(-2, 0), 10, 10, CYAN,
-                                         0, True, 10))
+                                         0, True, 10, False, 3))
                     float_texts.append(float_text(player.x, player.y, -5, random.randint(-2, 2), GREEN, RETRO_TEXT,
                                                   "+1 Score Per Bounce!"))
                     if len(bouncers) > MAX_BOUNCERS:
@@ -1136,7 +1124,7 @@ def dash_handler(player, keys_pressed):
             BOUNCER_SOUND.play()
             for i in range(40):
                 particles.append(
-                    particle(randx, randy, random.randrange(-5, 5), random.randrange(-2, 0), 10, 10, CYAN, 0, True, 10))
+                    particle(randx, randy, random.randrange(-5, 5), random.randrange(-2, 0), 10, 10, CYAN, 0, True, 10, False, 3))
             for i in range(BOUNCER_ADD):
                 bouncers.append(
                     pygame.Rect(randx - BOUNCER_WIDTH / 2, randy - BOUNCER_WIDTH / 2, BOUNCER_WIDTH, BOUNCER_HEIGHT))
@@ -1152,7 +1140,7 @@ def dash_handler(player, keys_pressed):
             dready = False
             for i in range(20):
                 particles.append(
-                    particle(player.x, player.y, random.randrange(-5, 5), random.randrange(-1, 0), 10, 10, WHITE, 0, True, 10))
+                    particle(player.x, player.y, random.randrange(-5, 5), random.randrange(-1, 0), 10, 10, WHITE, 0, True, 10, True))
             dash = 0
     else:
         pcolor = DARK_RED
@@ -1167,7 +1155,7 @@ def dash_handler(player, keys_pressed):
         if dash == DASH_GOAL:
             for i in range(20):
                 particles.append(
-                    particle(player.x, player.y, random.randrange(-5, 5), random.randrange(-1, 0), 10, 10, WHITE, 1, True, 10))
+                    particle(player.x, player.y, random.randrange(-5, 5), random.randrange(-1, 0), 10, 10, WHITE, 1, True, 10, False))
             dashing = True
             dashingamount = 0
             curdirx = pdirx
@@ -1218,7 +1206,7 @@ def star_handler(player):
             purge_num = 0
             for i in range(30):
                 particles.append(
-                    particle(player.x, player.y, random.randrange(-5, 5), random.randrange(-2, 0), 10, 10, YELLOW, 0, True, 10))
+                    particle(player.x, player.y, random.randrange(-5, 5), random.randrange(-2, 0), 10, 10, YELLOW, 0, True, 10, False, 3))
             float_texts.append(float_text(player.x, player.y, 10, random.randint(-4, 4), GREEN, RETRO_TEXT,
                                           ("+" + str(add_amount))))
             for i in range(bounce_purge):
@@ -1226,7 +1214,7 @@ def star_handler(player):
                     particles.append(
                         particle(bouncers[purge_num].x, bouncers[purge_num].y, random.randrange(-5, 5),
                                  random.randrange(-2, 0), 10, 10, CYAN,
-                                 0, True, 10))
+                                 0, True, 10, False, 3))
                 bouncers.pop(purge_num)
                 bouncer_trails.pop(purge_num)
                 bouncers_vel.pop(purge_num)
@@ -1632,7 +1620,7 @@ async def main():
                 BOUNCER_SOUND.play()
                 for i in range(40):
                     particles.append(
-                        particle(randx, randy, random.randrange(-5, 5), random.randrange(-2, 0), 10, 10, BLUE, 0, True, 10))
+                        particle(randx, randy, random.randrange(-5, 5), random.randrange(-2, 0), 10, 10, BLUE, 0, True, 10, False, 3))
             else:
                 add_amount = random.randint(10, 35)
                 health += add_amount
