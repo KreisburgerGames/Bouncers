@@ -229,6 +229,7 @@ class particle:
         glow_radius,
         white=False,
         lighten=0,
+        alpha=100
     ):
         self.x = x
         self.y = y
@@ -245,6 +246,8 @@ class particle:
         self.r, self.g, self.b = self.color
         self.white = white
         self.lighten = lighten
+        self.alpha = alpha
+        self.changed = False
 
     def draw(self, display):
         self.lifetime -= 1
@@ -252,24 +255,29 @@ class particle:
         self.x += self.x_velocity
         self.y += self.y_velocity * self.gravity
         if self.glow:
-            if (
-                self.white
-            ):  # Did not like how pure white looked, so made a dirty solution
-                self.white = False
-                self.lighten = 3
-            if True:
-                self.r += self.lighten
-                self.g += self.lighten
-                self.b += self.lighten
-                LIGHT_LIMIT = 255
-                if self.r > LIGHT_LIMIT:
-                    self.r = LIGHT_LIMIT
-                if self.g > LIGHT_LIMIT:
-                    self.g = LIGHT_LIMIT
-                if self.b > LIGHT_LIMIT:
-                    self.b = LIGHT_LIMIT
+            if not self.changed:
+                if self.glow_radius < 30:
+                    self.glow_radius += random.randint(10, 35)
+                if (
+                    self.white
+                ):  # Did not like how pure white looked, so made a dirty solution
+                    self.white = False
+                    self.lighten = random.randint(45, 75)
+                if True:
+                    self.lighten += random.randint(42, 72)
+                    self.r += self.lighten
+                    self.g += self.lighten
+                    self.b += self.lighten
+                    LIGHT_LIMIT = 255
+                    if self.r > LIGHT_LIMIT:
+                        self.r = LIGHT_LIMIT
+                    if self.g > LIGHT_LIMIT:
+                        self.g = LIGHT_LIMIT
+                    if self.b > LIGHT_LIMIT:
+                        self.b = LIGHT_LIMIT
+                self.changed = True
             rect = rect_surf(
-                (self.r, self.g, self.b, 100),
+                (self.r, self.g, self.b, self.alpha),
                 self.width + self.glow_radius,
                 self.height + self.glow_radius,
             )
@@ -1573,7 +1581,7 @@ def dash_handler(player, keys_pressed):
                                         CYAN,
                                         0,
                                         True,
-                                        10,
+                                        40,
                                         False,
                                         3,
                                     )
@@ -1722,7 +1730,7 @@ def dash_handler(player, keys_pressed):
                                     CYAN,
                                     0,
                                     True,
-                                    10,
+                                    40,
                                     False,
                                     3,
                                 )
@@ -1816,9 +1824,10 @@ def dash_handler(player, keys_pressed):
                         CYAN,
                         0,
                         True,
-                        10,
+                        40,
                         False,
                         3,
+                        50
                     )
                 )
             for i in range(BOUNCER_ADD):
@@ -1858,8 +1867,10 @@ def dash_handler(player, keys_pressed):
                         WHITE,
                         0,
                         True,
-                        10,
+                        40,
                         True,
+                        3,
+                        50
                     )
                 )
             dash = 0
@@ -1890,8 +1901,10 @@ def dash_handler(player, keys_pressed):
                         WHITE,
                         1,
                         True,
-                        10,
+                        25,
                         False,
+                        3,
+                        50
                     )
                 )
             dashing = True
@@ -2546,7 +2559,7 @@ async def main():
                             BLUE,
                             0,
                             True,
-                            10,
+                            40,
                             False,
                             3,
                         )
