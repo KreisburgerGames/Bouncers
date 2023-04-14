@@ -1,4 +1,4 @@
-# Asteroids
+# Bouncers
 
 # Backstory/Why I made this
 This project was a concept i always wanted to make since i got into programing on scratch
