@@ -9,7 +9,9 @@ import asyncio
 import http.client as httplib
 import pickle
 
-cred = credentials.Certificate("dodge-lines-eb5dc0de48f3.json")
+script_dir = os.path.dirname(__file__)
+
+cred = credentials.Certificate(os.path.join(script_dir, "dodge-lines-eb5dc0de48f3.json"))
 app = firebase_admin.initialize_app(cred)
 db = firestore.client()
 
@@ -59,15 +61,15 @@ bounces_survived = 0
 
 FPS = 60
 
-HIT_SOUND = pygame.mixer.Sound(os.path.join("", "sfx/hit.wav"))
-WALL_SOUND = pygame.mixer.Sound(os.path.join("", "sfx/wall.wav"))
-DEATH_SOUND = pygame.mixer.Sound(os.path.join("", "sfx/death.wav"))
-HEALTH_SOUND = pygame.mixer.Sound(os.path.join("", "sfx/health.wav"))
+HIT_SOUND = pygame.mixer.Sound(os.path.join(script_dir, "sfx/hit.wav"))
+WALL_SOUND = pygame.mixer.Sound(os.path.join(script_dir, "sfx/wall.wav"))
+DEATH_SOUND = pygame.mixer.Sound(os.path.join(script_dir, "sfx/death.wav"))
+HEALTH_SOUND = pygame.mixer.Sound(os.path.join(script_dir, "sfx/health.wav"))
 HEALTH_SOUND.set_volume(0.5)
-BOUNCER_SOUND = pygame.mixer.Sound(os.path.join("", "sfx/bouncer.wav"))
-RETRO_TEXT = pygame.font.Font("Retro Gaming.ttf", 50)
-DASH_SOUND = pygame.mixer.Sound(os.path.join("", "sfx/dash.wav"))
-BDEATH_SOUND = pygame.mixer.Sound(os.path.join("", "sfx/bouncerdeath.wav"))
+BOUNCER_SOUND = pygame.mixer.Sound(os.path.join(script_dir, "sfx/bouncer.wav"))
+RETRO_TEXT = pygame.font.Font(os.path.join(script_dir, "Retro Gaming.ttf"), 50)
+DASH_SOUND = pygame.mixer.Sound(os.path.join(script_dir, "sfx/dash.wav"))
+BDEATH_SOUND = pygame.mixer.Sound(os.path.join(script_dir, "sfx/bouncerdeath.wav"))
 
 LOSE_FONT = pygame.font.SysFont("framd", 200)
 SUB_TEXT = pygame.font.SysFont("framd", 40)
@@ -82,12 +84,12 @@ pygame.display.set_caption("Asteriods")
 
 EXIT_IMG_SIZE = 96
 exit_img = pygame.transform.scale(
-    pygame.image.load(os.path.join("pictures", "exit.png")),
+    pygame.image.load(os.path.join(script_dir, "pictures/exit.png")),
     (EXIT_IMG_SIZE, EXIT_IMG_SIZE),
 )
 FULLSCREEN_IMG_SIZE = 48
 fullscreen_img = pygame.transform.scale(
-    pygame.image.load(os.path.join("pictures", "fullscreen.png")),
+    pygame.image.load(os.path.join(script_dir, "pictures/fullscreen.png")),
     (FULLSCREEN_IMG_SIZE, FULLSCREEN_IMG_SIZE),
 )
 
@@ -170,31 +172,31 @@ wait = 0
 
 HEALTH_PACK_SIZE = 25
 health_img = pygame.transform.scale(
-    pygame.image.load(os.path.join("pictures", "health.png")),
+    pygame.image.load(os.path.join(script_dir, "pictures/health.png")),
     (HEALTH_PACK_SIZE, HEALTH_PACK_SIZE),
 )
 
 PU_HEALTH_SIZE = 50
 heart_pu_img = pygame.transform.scale(
-    pygame.image.load(os.path.join("pictures", "healthpu.png")),
+    pygame.image.load(os.path.join(script_dir, "pictures/healthpu.png")),
     (PU_HEALTH_SIZE, PU_HEALTH_SIZE),
 )
 
 HEART_SIZE = 64
 heart_img = pygame.transform.scale(
-    pygame.image.load(os.path.join("pictures", "heart.png")), (HEART_SIZE, HEART_SIZE)
+    pygame.image.load(os.path.join(script_dir, "pictures/heart.png")), (HEART_SIZE, HEART_SIZE)
 )
 
 PU_SPEED_SIZE = 50
 speed_img = pygame.transform.scale(
-    pygame.image.load(os.path.join("pictures", "speed.png")),
+    pygame.image.load(os.path.join(script_dir, "pictures/speed.png")),
     (PU_SPEED_SIZE, PU_SPEED_SIZE),
 )
-PU_SPEED_SOUND = pygame.mixer.Sound(os.path.join("", "sfx/speed.wav"))
+PU_SPEED_SOUND = pygame.mixer.Sound(os.path.join(script_dir, "sfx/speed.wav"))
 
 PU_STAR_SIZE = 50
 star_img = pygame.transform.scale(
-    pygame.image.load(os.path.join("pictures", "star.png")),
+    pygame.image.load(os.path.join(script_dir, "pictures/star.png")),
     (PU_STAR_SIZE, PU_STAR_SIZE),
 )
 
@@ -2110,7 +2112,7 @@ async def main():
                         DASH_GOAL = 4500
                         DASH_BAR_WIDTH = DASH_GOAL * DB_WIDTH_MULTIPLIER
                         health_img = pygame.transform.scale(
-                            pygame.image.load(os.path.join("pictures", "health.png")),
+                            pygame.image.load(os.path.join(script_dir, "pictures/health.png")),
                             (40, 40),
                         )
                         HEAL_MIN = 15
@@ -2137,7 +2139,7 @@ async def main():
                         DASH_GOAL = 6000
                         DASH_BAR_WIDTH = DASH_GOAL * DB_WIDTH_MULTIPLIER
                         health_img = pygame.transform.scale(
-                            pygame.image.load(os.path.join("pictures", "health.png")),
+                            pygame.image.load(os.path.join(script_dir, "pictures/health.png")),
                             (25, 25),
                         )
                         HEAL_MIN = 15
@@ -2162,7 +2164,7 @@ async def main():
                         DASH_GOAL = 9600
                         DASH_BAR_WIDTH = DASH_GOAL * DB_WIDTH_MULTIPLIER
                         health_img = pygame.transform.scale(
-                            pygame.image.load(os.path.join("pictures", "health.png")),
+                            pygame.image.load(os.path.join(script_dir, "pictures/health.png")),
                             (15, 15),
                         )
                         HEAL_MIN = 20
@@ -2190,7 +2192,7 @@ async def main():
                         DASH_GOAL = 60
                         DASH_BAR_WIDTH = DASH_GOAL * DB_WIDTH_MULTIPLIER
                         health_img = pygame.transform.scale(
-                            pygame.image.load(os.path.join("pictures", "health.png")),
+                            pygame.image.load(os.path.join(script_dir, "pictures/health.png")),
                             (80, 80),
                         )
                         HEAL_MIN = 100
